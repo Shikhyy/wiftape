@@ -1,0 +1,6 @@
+.env
+.env.*
+.testnet-wallet.json
+cache/
+out/
+broadcast/
