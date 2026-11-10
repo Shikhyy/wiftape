@@ -1,0 +1,23 @@
+# dependencies and build output
+node_modules/
+.next/
+out/
+cache/
+broadcast/
+*.tsbuildinfo
+next-env.d.ts
+
+# secrets and local config
+.env
+.env.*
+!.env.example
+.testnet-wallet.json
+logs/
+
+# dev notes and tooling (kept local)
+docs/
+.claude/
+.DS_Store
+
+# vendored dependency (install with forge install)
+contracts/lib/
