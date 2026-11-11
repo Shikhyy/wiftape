@@ -1,0 +1,230 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  WIF Tape design tokens, taken from the Crater reference: black, burnt-orange light, deep teal, cream.
+  Language: dark frosted glass with grain and gradient light (Signal AI dashboard + blink.capital).
+  See docs/04-DESIGN-SYSTEM.md.
+*/
+:root {
+  --bg: 6 5 5;
+  --ink: 243 235 227; /* cream */
+  --ember: 255 99 33;
+  --flame: 255 150 70;
+  --rust: 150 40 10;
+  --peach: 244 185 163;
+  --teal: 30 66 78;
+  --iris: 130 118 255;
+  --up: 96 224 154;
+  --down: 255 94 76;
+}
+
+html {
+  background: rgb(var(--bg));
+  color-scheme: dark;
+  scroll-behavior: smooth;
+}
+
+body {
+  /* No background here: the fixed <Backdrop> sits at z-index -10 and a body background would paint over it. The page colour comes from <html>. */
+  color: rgb(var(--ink));
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: rgb(var(--ember) / 0.55);
+}
+:focus-visible {
+  outline: 2px solid rgb(var(--flame));
+  outline-offset: 2px;
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgb(255 255 255 / 0.12);
+  border-radius: 999px;
+}
+
+/* ---------- keyframes ---------- */
+@keyframes spin_slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes drift {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(4%, 5%, 0) scale(1.08); }
+}
+@keyframes drift2 {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(-5%, -4%, 0) scale(1.1); }
+}
+@keyframes breathe {
+  0%, 100% { transform: scale(1); opacity: 0.92; }
+  50% { transform: scale(1.025); opacity: 1; }
+}
+@keyframes floaty {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.15; }
+}
+@keyframes pulse_ring {
+  0% { transform: scale(0.6); opacity: 0.8; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+@keyframes marquee {
+  to { transform: translateX(-50%); }
+}
+@keyframes fill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes fadein {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes shine {
+  from { transform: translateX(-120%); }
+  to { transform: translateX(220%); }
+}
+
+/* ---------- components ---------- */
+@layer components {
+  /* Film grain, used on glass and the backdrop. */
+  .grain::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    /* Plain low-opacity noise: a blended (overlay) grain on every panel forced the GPU to re-composite each one on scroll. */
+    opacity: 0.075;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1.1 -0.1'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+
+  /* Extreme frosted glass: strong blur and saturation, a diagonal sheen, hairline border, inner highlight, grain. */
+  .glass {
+    @apply grain relative overflow-hidden rounded-[26px];
+    background:
+      radial-gradient(120% 90% at 0% 0%, rgb(255 255 255 / 0.13), transparent 55%),
+      linear-gradient(145deg, rgb(255 255 255 / 0.075), rgb(255 255 255 / 0.02) 50%, rgb(255 255 255 / 0.05));
+    -webkit-backdrop-filter: blur(22px) saturate(1.5);
+    backdrop-filter: blur(22px) saturate(1.5);
+    border: 1px solid rgb(255 255 255 / 0.1);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.16),
+      inset 0 -20px 40px -30px rgb(0 0 0 / 0.5),
+      0 30px 80px -34px rgb(0 0 0 / 0.9);
+  }
+  .glass > * {
+    position: relative;
+  }
+  /* Burnt-orange tinted glass (hero cards, active states). */
+  .glass-ember {
+    background:
+      radial-gradient(120% 100% at 0% 0%, rgb(255 140 70 / 0.5), transparent 60%),
+      linear-gradient(145deg, rgb(255 99 33 / 0.34), rgb(130 30 8 / 0.22) 55%, rgb(255 255 255 / 0.035));
+    border-color: rgb(255 160 100 / 0.28);
+  }
+  /* Deep teal tinted glass. */
+  .glass-teal {
+    background:
+      radial-gradient(120% 100% at 0% 0%, rgb(90 160 180 / 0.3), transparent 60%),
+      linear-gradient(145deg, rgb(30 66 78 / 0.55), rgb(10 28 34 / 0.4) 60%, rgb(255 255 255 / 0.03));
+    border-color: rgb(130 190 205 / 0.2);
+  }
+  /* Darker glass for dense data panels. */
+  .glass-deep {
+    background:
+      radial-gradient(120% 90% at 0% 0%, rgb(255 255 255 / 0.07), transparent 55%),
+      linear-gradient(145deg, rgb(20 16 15 / 0.62), rgb(8 6 6 / 0.55));
+  }
+
+  .pill {
+    @apply inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-3 py-1.5 text-[12px] text-ink/80 backdrop-blur-xl;
+  }
+  .caps {
+    @apply font-mono text-[11px] uppercase tracking-[0.14em] text-ink/55;
+  }
+  .tag {
+    @apply inline-flex items-center rounded-md border px-2 py-[3px] font-mono text-[10.5px] font-medium uppercase leading-none tracking-wide;
+  }
+  .tag-up {
+    @apply border-up/30 bg-up/15 text-up;
+  }
+  .tag-down {
+    @apply border-down/30 bg-down/15 text-down;
+  }
+  .tag-ember {
+    @apply border-ember/35 bg-ember/15 text-flame;
+  }
+  .tag-neutral {
+    @apply border-white/15 bg-white/[0.06] text-ink/70;
+  }
+
+  .btn {
+    @apply relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full px-5 py-2.5 text-[14px] font-medium transition duration-200 disabled:cursor-not-allowed disabled:opacity-45;
+  }
+  .btn-ember {
+    @apply btn text-white;
+    background: linear-gradient(135deg, rgb(255 140 70), rgb(255 99 33) 45%, rgb(200 55 10));
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.4),
+      0 10px 34px -10px rgb(255 99 33 / 0.75);
+  }
+  .btn-ember:hover:not(:disabled) {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+  }
+  .btn-glass {
+    @apply btn border border-white/15 bg-white/[0.07] text-ink backdrop-blur-xl hover:bg-white/[0.13];
+  }
+
+  /* Scroll reveal: fade, rise and un-blur. */
+  .reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    filter: blur(5px);
+    transition:
+      opacity 0.55s cubic-bezier(0.2, 0.7, 0.2, 1),
+      transform 0.55s cubic-bezier(0.2, 0.7, 0.2, 1),
+      filter 0.55s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .reveal.in {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
