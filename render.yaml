@@ -1,0 +1,73 @@
+# Render Blueprint: the web app plus a background worker that runs the testnet bots.
+# Secrets are marked sync:false so you enter them in the Render dashboard, never in git.
+services:
+  - type: web
+    name: wif-tape-web
+    runtime: node
+    rootDir: web
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start -- -p $PORT
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: NEXT_PUBLIC_CHAIN_ID
+        value: "46630"
+      - key: NEXT_PUBLIC_CHAIN_NAME
+        value: Robinhood Chain Testnet
+      - key: NEXT_PUBLIC_RPC_URL
+        value: https://rpc.testnet.chain.robinhood.com
+      - key: NEXT_PUBLIC_EXPLORER_URL
+        value: https://explorer.testnet.chain.robinhood.com
+      - key: NEXT_PUBLIC_TAPE_ADDRESS
+        value: "0xD5629c22f9e1cb1E037Edb191dbc87a44670eA04"
+      - key: NEXT_PUBLIC_WIF_ADDRESS
+        value: "0xB566B9CFB766a4F654C199eF206058a34BDBF574"
+      - key: NEXT_PUBLIC_WIF_DECIMALS
+        value: "18"
+      - key: NEXT_PUBLIC_TEST_FAUCET
+        value: "true"
+      - key: ANTHROPIC_API_KEY
+        sync: false
+
+  - type: worker
+    name: wif-tape-bots
+    runtime: node
+    rootDir: web
+    buildCommand: npm ci
+    startCommand: node scripts/run-testnet.mjs
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: NEXT_PUBLIC_CHAIN_ID
+        value: "46630"
+      - key: NEXT_PUBLIC_CHAIN_NAME
+        value: Robinhood Chain Testnet
+      - key: NEXT_PUBLIC_RPC_URL
+        value: https://rpc.testnet.chain.robinhood.com
+      - key: NEXT_PUBLIC_TAPE_ADDRESS
+        value: "0xD5629c22f9e1cb1E037Edb191dbc87a44670eA04"
+      - key: NEXT_PUBLIC_WIF_ADDRESS
+        value: "0xB566B9CFB766a4F654C199eF206058a34BDBF574"
+      - key: FEED_NVDA
+        value: "0x11AaA61c920d6FeD6753C6cD4013012Bcd45B183"
+      - key: FEED_TSLA
+        value: "0xA3841Ebd493bd1D54F46850Ab5222293f0615848"
+      - key: FEED_AAPL
+        value: "0xF8B40b6D247689CD4eD70c1256826ABB3C657d3C"
+      # Secrets: enter these in the Render dashboard (copy from your local web/.env.testnet). Never commit them.
+      - key: PUSHER_PRIVATE_KEY
+        sync: false
+      - key: KEEPER_PRIVATE_KEY
+        sync: false
+      - key: SEEDER_0_UP_PRIVATE_KEY
+        sync: false
+      - key: SEEDER_0_DOWN_PRIVATE_KEY
+        sync: false
+      - key: SEEDER_1_UP_PRIVATE_KEY
+        sync: false
+      - key: SEEDER_1_DOWN_PRIVATE_KEY
+        sync: false
+      - key: SEEDER_2_UP_PRIVATE_KEY
+        sync: false
+      - key: SEEDER_2_DOWN_PRIVATE_KEY
+        sync: false
