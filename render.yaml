@@ -4,6 +4,7 @@ services:
   - type: web
     name: wif-tape-web
     runtime: node
+    plan: free
     rootDir: web
     buildCommand: npm ci && npm run build
     startCommand: npm run start -- -p $PORT
@@ -29,9 +30,13 @@ services:
       - key: ANTHROPIC_API_KEY
         sync: false
 
-  - type: worker
+  # Free plan: a web service (workers are paid). It serves a health check on $PORT; ping it every 5 minutes with a free
+  # uptime monitor so it never sleeps.
+  - type: web
     name: wif-tape-bots
     runtime: node
+    plan: free
+    healthCheckPath: /
     rootDir: web
     buildCommand: npm ci
     startCommand: node scripts/run-testnet.mjs

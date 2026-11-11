@@ -134,7 +134,7 @@ Network details for your wallet: RPC `https://rpc.testnet.chain.robinhood.com`, 
 ```
 contracts/   Foundry project: WifTape.sol, testnet helpers, tests, deploy scripts
 web/         Next.js 14 app (landing, dashboard, trade, signals, burn) and the bots in web/scripts
-render.yaml  Render Blueprint: web service plus a background worker for the bots
+render.yaml  Render Blueprint: web service plus a free web service that hosts the bots
 ```
 
 ## Quick start
@@ -185,7 +185,7 @@ Vercel cannot run the bots (serverless functions do not stay alive), so host the
 
 **Web app on Vercel.** Import the repo, set **Root Directory** to `web`, add the `NEXT_PUBLIC_*` variables above (and optionally `ANTHROPIC_API_KEY`), and deploy. The geo block reads Vercel's `x-vercel-ip-country` header.
 
-**Everything on Render.** Use **New, Blueprint** and point it at this repo. `render.yaml` creates the web service and a worker that runs `node scripts/run-testnet.mjs`. Secret values (`PUSHER_PRIVATE_KEY`, `KEEPER_PRIVATE_KEY`, the six `SEEDER_*` keys) are marked `sync: false`, so you enter them in the dashboard and they never touch git.
+**Everything on Render.** Use **New, Blueprint** and point it at this repo. `render.yaml` creates the web service and a second free web service that runs the bots (`node scripts/run-testnet.mjs`, which serves a health check on `$PORT`). Free services sleep after 15 minutes without traffic, so point a free uptime monitor such as UptimeRobot at the bots service URL every 5 minutes. Secret values (`PUSHER_PRIVATE_KEY`, `KEEPER_PRIVATE_KEY`, the six `SEEDER_*` keys) are marked `sync: false`, so you enter them in the dashboard and they never touch git.
 
 ## Configuration
 

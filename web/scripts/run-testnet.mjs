@@ -52,6 +52,16 @@ function start(bot, attempt = 0) {
 
 for (const bot of BOTS) setTimeout(() => start(bot), bot.delayMs);
 
+// Free web hosts (for example Render's free web service) only run processes that listen on $PORT, and they sleep when idle.
+// When PORT is set, answer a tiny health check so an uptime pinger can keep the supervisor awake. No data is exposed.
+if (process.env.PORT) {
+  const { createServer } = await import("node:http");
+  createServer((_req, res) => {
+    res.writeHead(200, { "content-type": "text/plain" });
+    res.end(`ok ${[...children.keys()].join(",") || "starting"}\n`);
+  }).listen(Number(process.env.PORT), () => line("supervisor", `health check on :${process.env.PORT}`));
+}
+
 function stopAll() {
   if (stopping) return;
   stopping = true;
